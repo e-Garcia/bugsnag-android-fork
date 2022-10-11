@@ -11,7 +11,8 @@ import com.bugsnag.android.Configuration
 import com.bugsnag.android.Severity
 import com.example.foo.CrashyClass
 import com.google.android.material.snackbar.Snackbar
-import java.util.HashMap
+import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 open class BaseCrashyActivity : AppCompatActivity() {
 
@@ -41,7 +42,17 @@ open class BaseCrashyActivity : AppCompatActivity() {
         }
 
         findViewById<View>(R.id.btn_anr).setOnClickListener {
-            Thread.sleep(10000)
+            val shouldKeepRunning = AtomicBoolean(true)
+            val timer = Timer()
+            timer.schedule(object: TimerTask() {
+                override fun run() {
+                    shouldKeepRunning.set(false)
+                    timer.cancel()
+                }
+            }, 6000, 20000)
+            while(shouldKeepRunning.get()) {
+                // Do nothing
+            }
             showSnackbar()
         }
 
